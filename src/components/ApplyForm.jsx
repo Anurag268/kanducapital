@@ -68,7 +68,7 @@ const ApplyForm = ({ type = "Loan", subType = "" }) => {
 
     } catch (err) {
       console.error("Supabase Error:", err.message);
-      alert("Submission Failed ❌ Check console");
+      alert("Submission Failed ❌ ");
     }
 
     setLoading(false);
