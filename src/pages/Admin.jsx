@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 
@@ -16,17 +16,17 @@ const Admin = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  // 🔐 AUTH CHECK
+  // 🔐 AUTH CHECK (FIXED)
   useEffect(() => {
     const checkUser = async () => {
       const { data } = await supabase.auth.getSession();
       if (!data.session) navigate("/admin-login");
     };
     checkUser();
-  }, []);
+  }, [navigate]);
 
-  // 🔄 FETCH
-  const fetchLeads = async () => {
+  // 🔄 FETCH LEADS (FIXED WITH useCallback)
+  const fetchLeads = useCallback(async () => {
     let query = supabase
       .from("leads")
       .select("*")
@@ -38,15 +38,16 @@ const Admin = () => {
 
     const { data } = await query;
     if (data) setLeads(data);
-  };
+  }, [filter]);
 
+  // CALL FETCH
   useEffect(() => {
     fetchLeads();
-  }, [filter]);
+  }, [fetchLeads]);
 
   // 🔍 SEARCH
   const filteredLeads = leads.filter(
-    l =>
+    (l) =>
       l.name.toLowerCase().includes(search.toLowerCase()) ||
       l.phone.includes(search)
   );
@@ -58,7 +59,7 @@ const Admin = () => {
     fetchLeads();
   };
 
-  // 🔄 STATUS
+  // 🔄 STATUS UPDATE
   const updateStatus = async (id, status) => {
     await supabase.from("leads").update({ status }).eq("id", id);
     fetchLeads();
@@ -67,7 +68,9 @@ const Admin = () => {
   // 📱 WHATSAPP
   const openWhatsApp = (lead) => {
     const msg = `Hello ${lead.name}, regarding your ${lead.sub_type}`;
-    window.open(`https://wa.me/91${lead.phone}?text=${encodeURIComponent(msg)}`);
+    window.open(
+      `https://wa.me/91${lead.phone}?text=${encodeURIComponent(msg)}`
+    );
   };
 
   // 🚪 LOGOUT
@@ -78,58 +81,60 @@ const Admin = () => {
 
   // 📊 STATS
   const total = leads.length;
-  const loanCount = leads.filter(l => l.type === "Loan").length;
-  const insuranceCount = leads.filter(l => l.type === "Insurance").length;
-  const cardCount = leads.filter(l => l.type === "Credit Card").length;
+  const loanCount = leads.filter((l) => l.type === "Loan").length;
+  const insuranceCount = leads.filter((l) => l.type === "Insurance").length;
+  const cardCount = leads.filter((l) => l.type === "Credit Card").length;
 
-  // 📊 CHART DATA
+  // 📊 MONTHLY DATA
   const monthly = {};
-  leads.forEach(l => {
-    const m = new Date(l.created_at).toLocaleString("default", { month: "short" });
+  leads.forEach((l) => {
+    const m = new Date(l.created_at).toLocaleString("default", {
+      month: "short",
+    });
     monthly[m] = (monthly[m] || 0) + 1;
   });
 
-  const chartData = Object.keys(monthly).map(m => ({
+  const chartData = Object.keys(monthly).map((m) => ({
     month: m,
-    leads: monthly[m]
+    leads: monthly[m],
   }));
 
+  // 📊 PIE DATA
   const pieData = [
     { name: "Loan", value: loanCount },
     { name: "Insurance", value: insuranceCount },
-    { name: "Card", value: cardCount }
+    { name: "Card", value: cardCount },
   ];
 
   const COLORS = ["#3B82F6", "#22C55E", "#FACC15"];
 
-  // 📥 EXCEL EXPORT
+  // 📥 EXPORT EXCEL
   const exportExcel = () => {
     if (filteredLeads.length === 0) {
       alert("No data to export ❌");
       return;
     }
 
-    const data = filteredLeads.map(l => ({
+    const data = filteredLeads.map((l) => ({
       Name: l.name,
       Phone: l.phone,
       Type: l.sub_type,
       Status: l.status || "Pending",
       Amount: l.amount || "",
-      Date: new Date(l.created_at).toLocaleDateString()
+      Date: new Date(l.created_at).toLocaleDateString(),
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-
     XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
 
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
-      type: "array"
+      type: "array",
     });
 
     const blob = new Blob([excelBuffer], {
-      type: "application/octet-stream"
+      type: "application/octet-stream",
     });
 
     saveAs(blob, "Leads.xlsx");
@@ -142,7 +147,10 @@ const Admin = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
 
-        <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded">
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded"
+        >
           Logout
         </button>
       </div>
@@ -153,14 +161,20 @@ const Admin = () => {
           <h2 className="text-2xl font-bold">{total}</h2>
           <p>Total Leads</p>
         </div>
+
         <div className="bg-blue-100 p-4 rounded-xl text-center">
-          <h2>{loanCount}</h2><p>Loans</p>
+          <h2>{loanCount}</h2>
+          <p>Loans</p>
         </div>
+
         <div className="bg-green-100 p-4 rounded-xl text-center">
-          <h2>{insuranceCount}</h2><p>Insurance</p>
+          <h2>{insuranceCount}</h2>
+          <p>Insurance</p>
         </div>
+
         <div className="bg-yellow-100 p-4 rounded-xl text-center">
-          <h2>{cardCount}</h2><p>Cards</p>
+          <h2>{cardCount}</h2>
+          <p>Cards</p>
         </div>
       </div>
 
@@ -184,8 +198,8 @@ const Admin = () => {
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie data={pieData} dataKey="value" outerRadius={80} label>
-                {pieData.map((e, i) => (
-                  <Cell key={i} fill={COLORS[i]} />
+                {pieData.map((entry, index) => (
+                  <Cell key={index} fill={COLORS[index]} />
                 ))}
               </Pie>
               <Tooltip />
@@ -206,7 +220,10 @@ const Admin = () => {
 
         <div className="flex gap-3">
 
-          <select onChange={(e) => setFilter(e.target.value)} className="p-2 border rounded">
+          <select
+            onChange={(e) => setFilter(e.target.value)}
+            className="p-2 border rounded"
+          >
             <option value="All">All</option>
             <option value="Loan">Loan</option>
             <option value="Insurance">Insurance</option>
@@ -260,11 +277,17 @@ const Admin = () => {
                 </td>
 
                 <td className="p-3 flex gap-2">
-                  <button onClick={() => openWhatsApp(l)} className="bg-green-500 text-white px-3 py-1 rounded">
+                  <button
+                    onClick={() => openWhatsApp(l)}
+                    className="bg-green-500 text-white px-3 py-1 rounded"
+                  >
                     WhatsApp
                   </button>
 
-                  <button onClick={() => deleteLead(l.id)} className="bg-red-500 text-white px-3 py-1 rounded">
+                  <button
+                    onClick={() => deleteLead(l.id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded"
+                  >
                     Delete
                   </button>
                 </td>

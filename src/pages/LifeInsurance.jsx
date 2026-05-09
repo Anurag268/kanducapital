@@ -3,9 +3,9 @@ import Footer from "../components/Footer";
 import ApplyForm from "../components/ApplyForm";
 
 
-import { FaShieldAlt, FaUserCheck, FaFileAlt } from "react-icons/fa";
+import { FaShieldAlt } from "react-icons/fa";
 import { useEffect } from "react";
-import { i } from "framer-motion/client";
+
 
 
 const LifeInsurance = () => {

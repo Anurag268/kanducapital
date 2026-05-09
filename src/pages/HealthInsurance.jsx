@@ -2,7 +2,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ApplyForm from "../components/ApplyForm";
 
-import { FaHeartbeat, FaHospital, FaUserCheck, FaFileAlt } from "react-icons/fa";
+import { FaHeartbeat,  FaUserCheck, FaFileAlt } from "react-icons/fa";
 import { useEffect } from "react";
 
 

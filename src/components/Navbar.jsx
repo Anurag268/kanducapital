@@ -1,9 +1,9 @@
-
-
-
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
+
+// ✅ Move outside (no re-creation on every render)
+const sections = ["home", "loans", "insurance", "contact"];
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -13,8 +13,7 @@ const Navbar = () => {
   const [active, setActive] = useState("home");
   const [scrolled, setScrolled] = useState(false);
 
-  const sections = ["home", "loans", "insurance", "contact"];
-
+  // ✅ SCROLL SPY + NAVBAR EFFECT
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -36,8 +35,9 @@ const Navbar = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, []); // ✅ no warning now
 
+  // ✅ SCROLL NAVIGATION
   const handleScroll = (id) => {
     setOpen(false);
 
@@ -51,6 +51,7 @@ const Navbar = () => {
     }
   };
 
+  // ✅ NAV ITEM
   const navItem = (id, label) => (
     <button
       onClick={() => handleScroll(id)}
@@ -69,15 +70,15 @@ const Navbar = () => {
 
   return (
     <>
+      {/* NAVBAR */}
       <nav
         className={`fixed w-full top-0 z-50 transition-all duration-300 ${
           scrolled
             ? "bg-white/90 backdrop-blur-lg shadow-md py-3"
             : "bg-transparent py-5"
-        } px-6 md:px-10 flex justify-between items-center`}
+        } px-4 sm:px-6 md:px-10 flex justify-between items-center`}
       >
-
-        {/* 🔥 UPDATED LOGO SECTION */}
+        {/* LOGO */}
         <div
           className="flex items-center gap-3 cursor-pointer group"
           onClick={() => navigate("/")}
@@ -88,7 +89,6 @@ const Navbar = () => {
             className="w-10 md:w-11 transition group-hover:scale-110"
           />
 
-          {/* TEXT */}
           <div className="flex flex-col leading-none">
             <h1 className="text-lg md:text-xl font-bold uppercase text-blue-900 tracking-wide">
               KANDU CAPITAL
@@ -134,7 +134,7 @@ const Navbar = () => {
 
       {/* MOBILE MENU */}
       <div
-        className={`fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform ${
+        className={`fixed top-0 right-0 h-full w-[80%] max-w-xs bg-white shadow-xl z-50 transform ${
           open ? "translate-x-0" : "translate-x-full"
         } transition duration-300 flex flex-col items-center justify-center gap-8`}
       >

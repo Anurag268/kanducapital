@@ -4,7 +4,7 @@ import ApplyForm from "../components/ApplyForm";
 
 import { FaCar } from "react-icons/fa";
 import { useEffect } from "react";
-import { i } from "framer-motion/client";
+
 
 
 const VehicleInsurance = () => {
