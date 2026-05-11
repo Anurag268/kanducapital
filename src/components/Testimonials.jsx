@@ -1,31 +1,3 @@
-// const Testimonials = () => {
-//   return (
-//     <section className="py-20 text-center">
-
-//       <h2 className="text-3xl font-bold mb-10">
-//         What Our Clients Say
-//       </h2>
-
-//       <div className="flex justify-center gap-8 px-10">
-
-//         <div className="bg-white p-6 rounded-xl shadow w-80">
-//           <p>"Got my loan approved within 24 hours!"</p>
-//           <h4 className="mt-3 font-semibold">Rahul Sharma</h4>
-//         </div>
-
-//         <div className="bg-white p-6 rounded-xl shadow w-80">
-//           <p>"Very smooth process and great support."</p>
-//           <h4 className="mt-3 font-semibold">Amit Verma</h4>
-//         </div>
-
-//       </div>
-
-//     </section>
-//   );
-// };
-
-// export default Testimonials;
-
 import { FaStar } from "react-icons/fa";
 
 const testimonials = [
