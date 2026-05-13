@@ -88,7 +88,7 @@ const Admin = () => {
 
   // ✅ UPDATE STATUS
   const updateStatus = async (id, status) => {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("leads")
       .update({ status: status })
       .eq("id", id)
